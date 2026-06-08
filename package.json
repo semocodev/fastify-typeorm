@@ -1,6 +1,6 @@
 {
-  "name": "@semocode/fastify-typeorm",
-  "version": "0.1.0",
+  "name": "@semocodev/fastify-typeorm",
+  "version": "0.1.1",
   "description": "Fastify v5 plugin for TypeORM 1.x — DataSource API, multi-namespace, full TypeScript support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -38,7 +38,7 @@
     "database",
     "plugin"
   ],
-  "author": "semocode",
+  "author": "semocodev",
   "license": "MIT",
   "repository": {
     "type": "git",

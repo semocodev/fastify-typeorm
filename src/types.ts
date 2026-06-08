@@ -69,7 +69,7 @@ export interface FastifyTypeormNamespaced {
 declare module "fastify" {
 	interface FastifyInstance {
 		/**
-		 * TypeORM DataSource decorated by @semocode/fastify-typeorm.
+		 * TypeORM DataSource decorated by @semocodev/fastify-typeorm.
 		 *
 		 * - **Direct mode** (no namespace): cast to `DataSource`
 		 *   or use `FastifyTypeormDirect` interface.
