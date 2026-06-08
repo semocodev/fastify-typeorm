@@ -5,7 +5,7 @@
  * a real database driver in CI.
  */
 
-import { describe, expect, test } from "@jest/globals";
+import { describe, expect, jest, test } from "@jest/globals";
 import Fastify from "fastify";
 import { DataSource } from "typeorm";
 import fastifyTypeorm from "../src/plugin";
