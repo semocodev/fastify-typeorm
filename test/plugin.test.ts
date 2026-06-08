@@ -1,5 +1,5 @@
 /**
- * Tests for @semocode/fastify-typeorm
+ * Tests for @semocodev/fastify-typeorm
  *
  * We mock DataSource at the typeorm module level to avoid needing
  * a real database driver in CI.

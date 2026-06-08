@@ -1,6 +1,6 @@
-# @semocode/fastify-typeorm
+# @semocodev/fastify-typeorm
 
-[![npm version](https://img.shields.io/npm/v/@semocode/fastify-typeorm.svg)](https://www.npmjs.com/package/@semocode/fastify-typeorm)
+[![npm version](https://img.shields.io/npm/v/@semocodev/fastify-typeorm.svg)](https://www.npmjs.com/package/@semocodev/fastify-typeorm)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Fastify v5 plugin for TypeORM 1.x. Decorates your Fastify instance with one or more TypeORM `DataSource` instances, with graceful shutdown on `fastify.close()`.
@@ -20,7 +20,7 @@ Fastify v5 plugin for TypeORM 1.x. Decorates your Fastify instance with one or m
 ## Installation
 
 ```bash
-npm install @semocode/fastify-typeorm typeorm fastify
+npm install @semocodev/fastify-typeorm typeorm fastify
 # plus your database driver, e.g.:
 npm install pg              # PostgreSQL
 npm install mysql2          # MySQL / MariaDB
@@ -44,7 +44,7 @@ Pass `DataSourceOptions` directly or a pre-built `DataSource` via `connection`.
 ```ts
 import 'reflect-metadata'
 import Fastify from 'fastify'
-import fastifyTypeorm from '@semocode/fastify-typeorm'
+import fastifyTypeorm from '@semocodev/fastify-typeorm'
 import { User } from './entities/User.js'
 
 const fastify = Fastify()
@@ -92,7 +92,7 @@ Use the `namespace` option. `fastify.orm[namespace]` returns the corresponding `
 ```ts
 import 'reflect-metadata'
 import Fastify from 'fastify'
-import fastifyTypeorm from '@semocode/fastify-typeorm'
+import fastifyTypeorm from '@semocodev/fastify-typeorm'
 
 const fastify = Fastify()
 
@@ -140,7 +140,7 @@ The package also exports helper interfaces if you want stronger typing in your o
 import type {
   FastifyTypeormDirect,
   FastifyTypeormNamespaced,
-} from '@semocode/fastify-typeorm'
+} from '@semocodev/fastify-typeorm'
 
 // Direct mode — use this in route handlers or plugins that expect orm to be a DataSource
 function myPlugin(fastify: FastifyInstance & FastifyTypeormDirect) {
@@ -189,7 +189,7 @@ All registered DataSources are automatically destroyed when `fastify.close()` is
 
 ## Differences from `fastify-typeorm-plugin` (inthepocket)
 
-| Feature              | `inthepocket/fastify-typeorm-plugin` | `@semocode/fastify-typeorm` |
+| Feature              | `inthepocket/fastify-typeorm-plugin` | `@semocodev/fastify-typeorm` |
 | -------------------- | ------------------------------------ | --------------------------- |
 | TypeORM API          | `createConnection()` (removed in v1) | `DataSource` (v1.x)         |
 | Fastify version      | v3/v4                                | v5+                         |
