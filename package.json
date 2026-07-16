@@ -1,6 +1,6 @@
 {
-  "name": "@semocode/fastify-typeorm",
-  "version": "0.1.0",
+  "name": "@semocodev/fastify-typeorm",
+  "version": "0.1.1",
   "description": "Fastify v5 plugin for TypeORM 1.x — DataSource API, multi-namespace, full TypeScript support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -38,7 +38,7 @@
     "database",
     "plugin"
   ],
-  "author": "semocode",
+  "author": "semocodev",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -53,20 +53,20 @@
     "typeorm": ">=1.0.0"
   },
   "dependencies": {
-    "fastify-plugin": "^5.0.0"
+    "fastify-plugin": "^6.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.16",
     "@jest/globals": "^30.4.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^26.1.1",
     "better-sqlite3": "^12.0.0",
     "fastify": "^5.8.0",
     "jest": "^30.4.2",
     "reflect-metadata": "^0.2.0",
     "ts-jest": "^29.3.0",
     "typeorm": "^1.0.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=22.0.0"

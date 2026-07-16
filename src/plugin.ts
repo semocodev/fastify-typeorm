@@ -81,5 +81,5 @@ const fastifyTypeormPlugin: FastifyPluginAsync<
 
 export default fp(fastifyTypeormPlugin, {
 	fastify: ">=5",
-	name: "@semocode/fastify-typeorm",
+	name: "@semocodev/fastify-typeorm",
 });
