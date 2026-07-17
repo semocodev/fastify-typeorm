@@ -56,7 +56,9 @@ const fastifyTypeormPlugin: FastifyPluginAsync<
 				DataSource
 			>;
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
-			fastify.decorate("orm", ormMap);
+			// `orm` is ambiently typed as `DataSource` (direct mode is the default);
+			// namespaced mode intentionally decorates it with a Record instead.
+			fastify.decorate("orm", ormMap as unknown as DataSource);
 		}
 
 		const ormMap = fastify.orm as Record<string, DataSource>;
