@@ -62,20 +62,25 @@ export interface FastifyTypeormNamespaced {
 
 // ─── FastifyInstance augmentation ──────────────────────────────────────────────
 //
-// The `orm` decorator is typed as `unknown` here to avoid the union type clash
-// between `DataSource` (direct mode) and `Record<string, DataSource>` (namespaced mode).
-// Use `FastifyTypeormDirect` or `FastifyTypeormNamespaced` for stronger typed access.
+// The `orm` decorator is ambiently typed as `DataSource` — direct mode (no
+// namespace) is by far the common case, so it gets zero-friction typing with
+// no cast required at every call site. A single `declare module` block can't
+// type `orm` conditionally on whether `namespace` was passed at a given
+// `register()` call, so namespaced mode is the one that requires an explicit
+// opt-in: intersect with `FastifyTypeormNamespaced` (or cast through
+// `unknown`) wherever you access `fastify.orm[namespace]`.
 
 declare module "fastify" {
 	interface FastifyInstance {
 		/**
 		 * TypeORM DataSource decorated by @semocodev/fastify-typeorm.
 		 *
-		 * - **Direct mode** (no namespace): cast to `DataSource`
-		 *   or use `FastifyTypeormDirect` interface.
-		 * - **Namespace mode**: cast to `Record<string, DataSource>`
-		 *   or use `FastifyTypeormNamespaced` interface.
+		 * - **Direct mode** (no namespace): typed as `DataSource` already —
+		 *   no cast needed.
+		 * - **Namespace mode**: intersect with the `FastifyTypeormNamespaced`
+		 *   interface (or cast through `unknown`) to access it as
+		 *   `Record<string, DataSource>`.
 		 */
-		orm: DataSource | Record<string, DataSource>;
+		orm: DataSource;
 	}
 }

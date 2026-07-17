@@ -1,6 +1,6 @@
 {
   "name": "@semocodev/fastify-typeorm",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Fastify v5 plugin for TypeORM 1.x — DataSource API, multi-namespace, full TypeScript support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

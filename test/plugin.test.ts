@@ -106,7 +106,7 @@ describe("namespaced mode", () => {
 			namespace: "primary",
 		});
 		await fastify.ready();
-		const orm = fastify.orm as Record<string, DataSource>;
+		const orm = fastify.orm as unknown as Record<string, DataSource>;
 		expect(orm.primary).toBe(ds);
 		await fastify.close();
 	});
@@ -124,7 +124,7 @@ describe("namespaced mode", () => {
 			namespace: "db2",
 		});
 		await fastify.ready();
-		const orm = fastify.orm as Record<string, DataSource>;
+		const orm = fastify.orm as unknown as Record<string, DataSource>;
 		expect(orm.db1).toBe(ds1);
 		expect(orm.db2).toBe(ds2);
 		expect(orm.db1).not.toBe(orm.db2);

@@ -113,8 +113,12 @@ await fastify.register(fastifyTypeorm, {
 })
 
 fastify.get('/report', async () => {
-  const users = await fastify.orm['primary'].getRepository(User).find()
-  const events = await fastify.orm['analytics'].getRepository(Event).find()
+  // `fastify.orm` is ambiently typed as `DataSource` (the direct-mode default) —
+  // namespace mode needs an explicit cast or the `FastifyTypeormNamespaced` interface.
+  // See the TypeScript section below.
+  const orm = fastify.orm as unknown as Record<string, DataSource>
+  const users = await orm['primary'].getRepository(User).find()
+  const events = await orm['analytics'].getRepository(Event).find()
   return { users, events }
 })
 ```
@@ -127,12 +131,16 @@ The module augments `FastifyInstance` with:
 
 ```ts
 interface FastifyInstance {
-  orm: DataSource | Record<string, DataSource>
+  orm: DataSource
 }
 ```
 
-For direct mode, `fastify.orm` is typed as `DataSource`.
-For namespaced mode, use `fastify.orm['namespace']` — typed as `DataSource`.
+Direct mode (no `namespace`) is the common case, so `fastify.orm` is typed as
+`DataSource` everywhere with no cast needed. A single `declare module` block
+can't type `orm` conditionally on whether a given `register()` call passed
+`namespace` — so namespaced mode is the one that needs an explicit opt-in:
+cast `fastify.orm` through `unknown` to `Record<string, DataSource>`, or use
+the `FastifyTypeormNamespaced` helper interface below.
 
 The package also exports helper interfaces if you want stronger typing in your own code:
 
@@ -142,12 +150,12 @@ import type {
   FastifyTypeormNamespaced,
 } from '@semocodev/fastify-typeorm'
 
-// Direct mode — use this in route handlers or plugins that expect orm to be a DataSource
+// Direct mode — orm is already typed as DataSource; this interface documents intent
 function myPlugin(fastify: FastifyInstance & FastifyTypeormDirect) {
   fastify.orm.getRepository(User) // typed as DataSource
 }
 
-// Namespaced mode
+// Namespaced mode — required to access fastify.orm[namespace] with types
 function myOtherPlugin(fastify: FastifyInstance & FastifyTypeormNamespaced) {
   fastify.orm['primary'] // typed as DataSource
 }
