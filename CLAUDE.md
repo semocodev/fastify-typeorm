@@ -8,7 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm run build          # tsc → dist/
 npm test               # jest with coverage (enforces thresholds)
 npm run test:watch     # jest in watch mode
-npm run lint           # eslint src test
+npm run lint           # biome lint src test
+npm run format         # biome format --write src test
+npm run check          # biome check src test
 
 # Run a single test by name
 npx jest --config jest.config.mjs -t "test name pattern"
@@ -28,7 +30,7 @@ Single-file Fastify plugin (`src/plugin.ts`) wrapped with `fastify-plugin` so de
 Both modes call `dataSource.initialize()` only if not yet initialized, and register an `onClose` hook to call `dataSource.destroy()`.
 
 **Source layout:**
-- `src/types.ts` — all exported types + `declare module "fastify"` augmentation. The `FastifyInstance.orm` field is typed as `DataSource | Record<string, DataSource>` (loose union); use `FastifyTypeormDirect` / `FastifyTypeormNamespaced` helper interfaces for stronger typing in consumer code.
+- `src/types.ts` — all exported types + `declare module "fastify"` augmentation. The `FastifyInstance.orm` field is typed as `DataSource` (direct mode is the default, ambient type); namespaced mode needs an explicit cast or the `FastifyTypeormNamespaced` helper interface to access it as `Record<string, DataSource>`.
 - `src/plugin.ts` — plugin implementation
 - `src/index.ts` — barrel re-export (no logic)
 
@@ -36,7 +38,7 @@ Both modes call `dataSource.initialize()` only if not yet initialized, and regis
 
 ## Key constraints
 
-- ESM package (`"type": "module"`); imports inside `src/` must use `.js` extensions (resolved to `.ts` at compile time via NodeNext).
+- Compiled output is CommonJS (`package.json` has no `"type": "module"`); the `exports` map declares both `require` and `import` conditions pointing at the same `dist/index.js`, so consumers can use either. `module`/`moduleResolution` are still `NodeNext`, so imports inside `src/` must use `.js` extensions (resolved to `.ts` at compile time).
 - `experimentalDecorators` and `emitDecoratorMetadata` are enabled — consumers must `import 'reflect-metadata'` before any entity import.
 - `tsconfig.test.json` is used by ts-jest (separate from the build tsconfig).
 - Peer deps: `fastify >=5`, `typeorm >=1.0.0`, Node `>=22`.
