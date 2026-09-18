@@ -1,4 +1,4 @@
-import type { DataSource, DataSourceOptions } from "typeorm";
+import type { DataSource, DataSourceOptions } from 'typeorm'
 
 // ─── Plugin options ────────────────────────────────────────────────────────────
 
@@ -8,29 +8,29 @@ import type { DataSource, DataSourceOptions } from "typeorm";
  * or raw `DataSourceOptions` (the plugin calls `new DataSource(opts).initialize()`).
  */
 type BaseOptions =
-	| { connection: DataSource; [key: string]: unknown }
-	| ({ connection?: never } & DataSourceOptions);
+  | { connection: DataSource; [key: string]: unknown }
+  | ({ connection?: never } & DataSourceOptions)
 
 /**
  * Options for registering **without** a namespace.
  * Decorates `fastify.orm` as a `DataSource` directly.
  */
-export type FastifyTypeormOptions = BaseOptions & { namespace?: never };
+export type FastifyTypeormOptions = BaseOptions & { namespace?: never }
 
 /**
  * Options for registering **with** a namespace.
  * Decorates `fastify.orm[namespace]` as a `DataSource`.
  */
 export type FastifyTypeormNamespacedOptions = BaseOptions & {
-	namespace: string;
-};
+  namespace: string
+}
 
 /**
  * Combined options — accepted by the plugin in both modes.
  */
 export type FastifyTypeormPluginOptions =
-	| FastifyTypeormOptions
-	| FastifyTypeormNamespacedOptions;
+  | FastifyTypeormOptions
+  | FastifyTypeormNamespacedOptions
 
 // ─── Typed accessor helpers ────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ export type FastifyTypeormPluginOptions =
  * }
  */
 export interface FastifyTypeormDirect {
-	orm: DataSource;
+  orm: DataSource
 }
 
 /**
@@ -57,7 +57,7 @@ export interface FastifyTypeormDirect {
  * }
  */
 export interface FastifyTypeormNamespaced {
-	orm: Record<string, DataSource>;
+  orm: Record<string, DataSource>
 }
 
 // ─── FastifyInstance augmentation ──────────────────────────────────────────────
@@ -70,17 +70,17 @@ export interface FastifyTypeormNamespaced {
 // opt-in: intersect with `FastifyTypeormNamespaced` (or cast through
 // `unknown`) wherever you access `fastify.orm[namespace]`.
 
-declare module "fastify" {
-	interface FastifyInstance {
-		/**
-		 * TypeORM DataSource decorated by @semocodev/fastify-typeorm.
-		 *
-		 * - **Direct mode** (no namespace): typed as `DataSource` already —
-		 *   no cast needed.
-		 * - **Namespace mode**: intersect with the `FastifyTypeormNamespaced`
-		 *   interface (or cast through `unknown`) to access it as
-		 *   `Record<string, DataSource>`.
-		 */
-		orm: DataSource;
-	}
+declare module 'fastify' {
+  interface FastifyInstance {
+    /**
+     * TypeORM DataSource decorated by @semocodev/fastify-typeorm.
+     *
+     * - **Direct mode** (no namespace): typed as `DataSource` already —
+     *   no cast needed.
+     * - **Namespace mode**: intersect with the `FastifyTypeormNamespaced`
+     *   interface (or cast through `unknown`) to access it as
+     *   `Record<string, DataSource>`.
+     */
+    orm: DataSource
+  }
 }

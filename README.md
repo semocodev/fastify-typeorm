@@ -32,6 +32,8 @@ npm install better-sqlite3  # SQLite
 > import 'reflect-metadata'
 > ```
 
+Both ESM (`import`) and CommonJS (`require`) consumers are supported via the package's `exports` map.
+
 ---
 
 ## Usage
