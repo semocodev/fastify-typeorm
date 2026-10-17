@@ -1,9 +1,13 @@
 /**
- * Integration tests against a real PostgreSQL.
+ * Integration tests against real PostgreSQL and MySQL.
  *
  *   docker run -d --name fastify-typeorm-pg -e POSTGRES_PASSWORD=secret \
  *     -e POSTGRES_DB=test -p 55432:5432 postgres:17-alpine
+ *   docker run -d --name fastify-typeorm-mysql -e MYSQL_ROOT_PASSWORD=secret \
+ *     -e MYSQL_DATABASE=test -p 53306:3306 mysql:8.4
  *   npm run test:integration
+ *
+ * Override with PG*, MYSQL* env vars (HOST, PORT, USER, PASSWORD, DATABASE).
  */
 import 'reflect-metadata'
 import { Writable } from 'node:stream'
@@ -13,14 +17,30 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 import { healthCheck, TypeormPluginError } from '../../src/index'
 import fastifyTypeorm from '../../src/plugin'
 
-const connection = {
-  type: 'postgres' as const,
-  host: process.env.PGHOST ?? 'localhost',
-  port: Number(process.env.PGPORT ?? 55432),
-  username: process.env.PGUSER ?? 'postgres',
-  password: process.env.PGPASSWORD ?? 'secret',
-  database: process.env.PGDATABASE ?? 'test'
-}
+const databases = [
+  {
+    name: 'postgres',
+    connection: {
+      type: 'postgres' as const,
+      host: process.env.PGHOST ?? 'localhost',
+      port: Number(process.env.PGPORT ?? 55432),
+      username: process.env.PGUSER ?? 'postgres',
+      password: process.env.PGPASSWORD ?? 'secret',
+      database: process.env.PGDATABASE ?? 'test'
+    }
+  },
+  {
+    name: 'mysql',
+    connection: {
+      type: 'mysql' as const,
+      host: process.env.MYSQLHOST ?? 'localhost',
+      port: Number(process.env.MYSQLPORT ?? 53306),
+      username: process.env.MYSQLUSER ?? 'root',
+      password: process.env.MYSQLPASSWORD ?? 'secret',
+      database: process.env.MYSQLDATABASE ?? 'test'
+    }
+  }
+]
 
 @Entity('it_user')
 class User {
@@ -42,7 +62,7 @@ function logCapture() {
   return { lines, stream }
 }
 
-describe('postgres integration', () => {
+describe.each(databases)('$name integration', ({ connection }) => {
   test('connects, queries, health-checks and shuts down', async () => {
     const fastify = Fastify()
     await fastify.register(fastifyTypeorm, {
@@ -143,6 +163,6 @@ describe('postgres integration', () => {
         (e: unknown) => e
       )
     expect(err).toBeInstanceOf(TypeormPluginError)
-    expect(String((err as Error).cause)).toMatch(/password/i)
+    expect(String((err as Error).cause)).toMatch(/password|denied/i)
   })
 })
