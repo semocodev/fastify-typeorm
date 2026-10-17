@@ -11,6 +11,7 @@ npm run test:watch     # jest in watch mode
 npm run lint           # biome lint src test
 npm run format         # biome format --write src test
 npm run check          # biome check src test
+npm run test:integration  # real Postgres (:55432) + MySQL (:53306), see test/integration/databases.test.ts
 
 # Run a single test by name
 npx jest --config jest.config.mjs -t "test name pattern"
@@ -20,7 +21,7 @@ Coverage thresholds (enforced by jest): branches 90%, functions 100%, lines/stat
 
 ## Architecture
 
-Single-file Fastify plugin (`src/plugin.ts`) wrapped with `fastify-plugin` so decorations are shared across the encapsulation boundary.
+Fastify plugin (`src/plugin.ts`) wrapped with `fastify-plugin` so decorations are shared across the encapsulation boundary.
 
 **Two registration modes:**
 
@@ -32,6 +33,9 @@ Both modes call `dataSource.initialize()` only if not yet initialized, and regis
 **Source layout:**
 - `src/types.ts` — all exported types + `declare module "fastify"` augmentation. The `FastifyInstance.orm` field is typed as `DataSource` (direct mode is the default, ambient type); namespaced mode needs an explicit cast or the `FastifyTypeormNamespaced` helper interface to access it as `Record<string, DataSource>`.
 - `src/plugin.ts` — plugin implementation
+- `src/logger.ts` — `PinoTypeormLogger` (routes TypeORM logs to `fastify.log`)
+- `src/health.ts` — `healthCheck(dataSource)`
+- `src/errors.ts` — `TypeormPluginError` (sanitized `connectionDetails`, `cause`)
 - `src/index.ts` — barrel re-export (no logic)
 
 **Tests** (`test/plugin.test.ts`) mock `DataSource` via `Object.setPrototypeOf(ds, DataSource.prototype)` — no real database driver needed.
@@ -42,3 +46,4 @@ Both modes call `dataSource.initialize()` only if not yet initialized, and regis
 - `experimentalDecorators` and `emitDecoratorMetadata` are enabled — consumers must `import 'reflect-metadata'` before any entity import.
 - `tsconfig.test.json` is used by ts-jest (separate from the build tsconfig).
 - Peer deps: `fastify >=5`, `typeorm >=1.0.0`, Node `>=22`.
+- Release tags have **no `v` prefix**: use `1.0.0`, never `v1.0.0` (existing tags `0.3.0`–`0.3.2`; `v0.3.3` and `v0.2.0` are legacy mistakes).
