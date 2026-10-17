@@ -7,9 +7,22 @@ import type { DataSource, DataSourceOptions } from 'typeorm'
  * Pass either a pre-built `DataSource` via `connection`,
  * or raw `DataSourceOptions` (the plugin calls `new DataSource(opts).initialize()`).
  */
-type BaseOptions =
+type BaseOptions = (
   | { connection: DataSource; [key: string]: unknown }
   | ({ connection?: never } & DataSourceOptions)
+) &
+  RetryOptions
+
+/**
+ * Connection retry settings. Applied only when the plugin has to call
+ * `initialize()` (i.e. the DataSource is not initialized yet).
+ */
+export interface RetryOptions {
+  /** Extra attempts after the first failure. Default `0` (no retry). */
+  retries?: number
+  /** Delay before the first retry in ms, doubled on each attempt. Default `1000`. */
+  retryDelay?: number
+}
 
 /**
  * Options for registering **without** a namespace.

@@ -1,6 +1,9 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
+import type { LoggerOptions } from 'typeorm'
 import { DataSource } from 'typeorm'
+import { TypeormPluginError } from './errors.js'
+import { PinoTypeormLogger } from './logger.js'
 import type { FastifyTypeormPluginOptions } from './types.js'
 
 // ─── Errors ────────────────────────────────────────────────────────────────────
@@ -12,6 +15,43 @@ const ERR_ALREADY_DECORATED =
 const errNamespaceConflict = (ns: string) =>
   `[fastify-typeorm] namespace "${ns}" is already registered on fastify.orm.`
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+const sleep = (ms: number) =>
+  new Promise<void>(resolve => setTimeout(resolve, ms))
+
+/**
+ * Initializes the DataSource, retrying with exponential backoff
+ * (`retryDelay`, `2 * retryDelay`, `4 * retryDelay`, …).
+ */
+async function initializeWithRetry(
+  dataSource: DataSource,
+  retries: number,
+  retryDelay: number,
+  log: FastifyInstance['log']
+): Promise<void> {
+  const maxAttempts = retries + 1
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await dataSource.initialize()
+      return
+    } catch (error) {
+      if (attempt >= maxAttempts) {
+        throw new TypeormPluginError(
+          `[fastify-typeorm] failed to initialize DataSource after ${maxAttempts} attempt(s)`,
+          dataSource.options,
+          error
+        )
+      }
+      const delay = retryDelay * 2 ** (attempt - 1)
+      log.warn(
+        `[fastify-typeorm] connection attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms`
+      )
+      await sleep(delay)
+    }
+  }
+}
+
 // ─── Plugin ────────────────────────────────────────────────────────────────────
 
 const fastifyTypeormPlugin: FastifyPluginAsync<
@@ -21,9 +61,17 @@ const fastifyTypeormPlugin: FastifyPluginAsync<
   fastify: FastifyInstance & { orm?: any },
   options: FastifyTypeormPluginOptions
 ) => {
-  const { connection, namespace, ...dataSourceOptions } = options as {
+  const {
+    connection,
+    namespace,
+    retries = 0,
+    retryDelay = 1000,
+    ...dataSourceOptions
+  } = options as {
     connection?: DataSource
     namespace?: string
+    retries?: number
+    retryDelay?: number
     [key: string]: unknown
   }
 
@@ -31,14 +79,35 @@ const fastifyTypeormPlugin: FastifyPluginAsync<
   const dataSource: DataSource =
     connection instanceof DataSource
       ? connection
-      : new DataSource(
-          dataSourceOptions as unknown as ConstructorParameters<
-            typeof DataSource
-          >[0]
-        )
+      : new DataSource({
+          ...dataSourceOptions,
+          logger:
+            dataSourceOptions.logger ??
+            new PinoTypeormLogger(
+              fastify.log,
+              dataSourceOptions.logging as LoggerOptions | undefined
+            )
+        } as unknown as ConstructorParameters<typeof DataSource>[0])
 
   if (!dataSource.isInitialized) {
-    await dataSource.initialize()
+    // A pre-built DataSource already created its default logger from its own
+    // options; swap in pino unless the user configured one explicitly.
+    if (connection && !dataSource.options?.logger) {
+      Object.assign(dataSource, {
+        logger: new PinoTypeormLogger(fastify.log, dataSource.options?.logging)
+      })
+    }
+
+    if (
+      dataSource.options?.synchronize &&
+      process.env.NODE_ENV === 'production'
+    ) {
+      fastify.log.warn(
+        '[fastify-typeorm] "synchronize: true" in production auto-alters the database schema and may cause data loss. Use migrations instead.'
+      )
+    }
+
+    await initializeWithRetry(dataSource, retries, retryDelay, fastify.log)
   }
 
   // Graceful shutdown — runs for every registered DataSource
