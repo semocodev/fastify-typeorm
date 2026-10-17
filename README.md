@@ -191,6 +191,58 @@ console.log(fastify.orm.isInitialized) // true
 
 ---
 
+## Connection retry
+
+If the database is not ready yet (Docker, k8s), let the plugin retry with exponential backoff:
+
+```ts
+await fastify.register(fastifyTypeorm, {
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  retries: 5,      // extra attempts after the first failure (default 0)
+  retryDelay: 500  // ms before the first retry, doubled each time (default 1000)
+})
+```
+
+When all attempts fail, a `TypeormPluginError` is thrown. `error.cause` is the original driver error and `error.connectionDetails` has only `type`, `host`, `port`, `database` and `username` (never the password), so it is safe to log.
+
+Retries apply only when the plugin has to call `initialize()`; an already-initialized DataSource is used as-is.
+
+---
+
+## Logging
+
+Unless you pass your own `logger`, TypeORM logs go through Fastify's pino instance and respect the `logging` option:
+
+```ts
+await fastify.register(fastifyTypeorm, {
+  type: 'postgres',
+  url: process.env.DATABASE_URL,
+  logging: ['query', 'error', 'warn'] // queries -> debug, errors -> error, slow -> warn
+})
+```
+
+This also applies to a pre-built `connection` that has no `logger` configured. `PinoTypeormLogger` is exported if you want to build the DataSource yourself.
+
+A warning is logged when `synchronize: true` is used with `NODE_ENV=production`.
+
+---
+
+## Health check
+
+```ts
+import { healthCheck } from '@semocodev/fastify-typeorm'
+
+fastify.get('/ready', async (_req, reply) => {
+  const ok = await healthCheck(fastify.orm)
+  return reply.code(ok ? 200 : 503).send({ ok })
+})
+```
+
+`healthCheck` never throws. It returns `false` if the DataSource is not initialized or the ping query fails.
+
+---
+
 ## Graceful shutdown
 
 All registered DataSources are automatically destroyed when `fastify.close()` is called (via the `onClose` hook), including in namespaced mode.
