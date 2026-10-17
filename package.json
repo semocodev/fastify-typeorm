@@ -1,6 +1,6 @@
 {
   "name": "@semocodev/fastify-typeorm",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Fastify v5 plugin for TypeORM 1.x — DataSource API, multi-namespace, full TypeScript support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -54,19 +54,19 @@
     "typeorm": ">=1.0.0"
   },
   "dependencies": {
-    "fastify-plugin": "^6.0.0"
+    "fastify-plugin": "^6.0.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.16",
-    "@jest/globals": "^30.4.1",
+    "@biomejs/biome": "^2.5.15",
+    "@jest/globals": "^30.5.2",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.1.1",
-    "better-sqlite3": "^12.0.0",
-    "fastify": "^5.8.0",
-    "jest": "^30.4.2",
-    "reflect-metadata": "^0.2.0",
-    "ts-jest": "^29.3.0",
-    "typeorm": "^1.0.0",
+    "@types/node": "^26.6.5",
+    "better-sqlite3": "^12.11.1",
+    "fastify": "^5.12.7",
+    "jest": "^30.5.2",
+    "reflect-metadata": "^0.2.2",
+    "ts-jest": "^29.4.15",
+    "typeorm": "^1.1.2",
     "typescript": "^5.9.3"
   },
   "engines": {
