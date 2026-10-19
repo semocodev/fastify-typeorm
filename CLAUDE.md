@@ -47,3 +47,4 @@ Both modes call `dataSource.initialize()` only if not yet initialized, and regis
 - `tsconfig.test.json` is used by ts-jest (separate from the build tsconfig).
 - Peer deps: `fastify >=5`, `typeorm >=1.0.0`, Node `>=22`.
 - Release tags have **no `v` prefix**: use `1.0.0`, never `v1.0.0` (existing tags `0.3.0`–`0.3.2`; `v0.3.3` and `v0.2.0` are legacy mistakes).
+- Releases: `npm version <patch|minor|major>` bumps `package.json`, regenerates the top `CHANGELOG.md` section from Conventional Commits (`scripts/changelog.mjs`, via the `version` npm hook), commits as `chore(release): bump version to X` and tags `X` (no `v`; see `.npmrc`). Use `feat:`/`fix:`/`docs:` etc. commit prefixes so entries are classified.

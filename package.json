@@ -1,6 +1,6 @@
 {
   "name": "@semocodev/fastify-typeorm",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Fastify v5 plugin for TypeORM 1.x — DataSource API, multi-namespace, full TypeScript support",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -26,6 +26,8 @@
     "lint": "biome lint src test",
     "format": "biome format --write src test",
     "check": "biome check src test",
+    "changelog": "node scripts/changelog.mjs",
+    "version": "npm run changelog && git add CHANGELOG.md",
     "prepublishOnly": "npm run build && npm run check && npm test"
   },
   "keywords": [
@@ -64,6 +66,8 @@
     "@types/node": "^26.6.5",
     "@types/pg": "^8.23.1",
     "better-sqlite3": "^12.11.1",
+    "conventional-changelog": "^8.1.3",
+    "conventional-changelog-conventionalcommits": "^10.4.1",
     "fastify": "^5.12.7",
     "jest": "^30.5.2",
     "mysql2": "^3.24.6",
