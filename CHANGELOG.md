@@ -5,6 +5,12 @@ All notable changes to this project are documented in this file.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 Release tags have no `v` prefix.
 
+## [1.0.1](https://github.com/semocodev/fastify-typeorm/compare/1.0.0...1.0.1) (2026-10-19)
+
+### Build
+
+* generate `CHANGELOG.md` automatically on `npm version` (Conventional Commits)
+
 ## [1.0.0] - 2026-10-18
 
 ### Added
